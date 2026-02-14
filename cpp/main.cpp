@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
 #include <thread>
 #include <chrono>
 #include <Windows.h>
@@ -64,6 +65,15 @@ static CanUpdateAllStationCmd can_updateAllStationCmd = NULL;
 static CanUpdateCurrentStationCmd can_updateCurrentStationCmd = NULL;
 static CanGetUpdateStatusCmd can_getUpdateStatusCmd = NULL;
 static CanRxThread can_rx_thread = NULL;
+volatile int running = 0;
+
+void SignalHandler(int signal) 
+{
+    if (signal == SIGINT) {
+        printf("Capture CTRL+C signal. Try to abort\n");
+        running = 0;
+    }
+}
 
 inline void putchar_(char character, void* buffer, size_t idx, size_t maxlen)
 {
@@ -94,7 +104,6 @@ int main(int argc, char **argv)
     uint32_t newPacketLen;
     uint8_t status;
     int retCode = 0;
-    volatile int running = 1;
 
     //load library
     HINSTANCE handle = LoadLibraryA("cx_can_update.dll");
@@ -226,6 +235,8 @@ int main(int argc, char **argv)
     }
     printf("connected USBCAN's serial number is %s\n", sn);
 
+    running = 1;    //start the receiving thread
+    signal(SIGINT, SignalHandler);
     std::thread receive_thread(can_rx_thread, &running);
     
     if (can_getBootloaderVerCmd(addr, resp) < 0) {
