@@ -341,6 +341,7 @@ int main(int argc, char **argv)
             goto bailout;
         }
     }
+    std::this_thread::sleep_for(std::chrono::microseconds(5 * 1000000));
     while (true) {
         if (can_getUpdateStatusCmd(addr, resp) < 0) {
             printf("try to get update status failed\n");
@@ -364,6 +365,7 @@ int main(int argc, char **argv)
             goto bailout;
         }
     }
+
 bailout:
     can_disconnect();
     printf("USBCAN disconnect successfully\n");
