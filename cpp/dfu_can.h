@@ -34,6 +34,7 @@ __declspec(dllexport) int can_verifyAllDataCmd(uint8_t addr, uint8_t crcType, ui
 __declspec(dllexport) int can_updateAllStationCmd(void);
 __declspec(dllexport) int can_updateCurrentStationCmd(uint8_t addr);
 __declspec(dllexport) int can_getUpdateStatusCmd(uint8_t addr, uint8_t *resp);
+__declspec(dllexport) void can_rx_thread(volatile int *running);
 
 #ifdef __cplusplus
 }

@@ -5,6 +5,7 @@
 //Date : Dec 02, 2026
 
 #include <stdint.h>
+#include <atomic>
 
 //constants
 #define CAN_EFF_FLAG 0x80000000u    //EFF/SFF is set in the MSB
@@ -39,6 +40,8 @@
 
 #define INVALID_DEVICE_HANDLE   0
 #define INVALID_CHANNEL_HANDLE  0
+
+#define kCapacity 1024
 
 //types
 typedef struct {
@@ -143,6 +146,12 @@ typedef struct {
     can_frame frame;
     uint64_t timestamp; //us
 } ZCAN_Receive_Data;
+
+struct SPSCQueue {
+    alignas(std::hardware_destructive_interference_size) std::atomic<size_t> head;
+    alignas(std::hardware_destructive_interference_size) std::atomic<size_t> tail;
+    can_frame buffer[kCapacity];
+};
 
 typedef void *DEVICE_HANDLE;
 typedef void *CHANNEL_HANDLE;

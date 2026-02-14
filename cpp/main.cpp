@@ -38,6 +38,7 @@ typedef int (*CanVerifyAllDataCmd)(uint8_t addr, uint8_t crcType, uint32_t fileC
 typedef int (*CanUpdateAllStationCmd)(void);
 typedef int (*CanUpdateCurrentStationCmd)(uint8_t addr);
 typedef int (*CanGetUpdateStatusCmd)(uint8_t addr, uint8_t *resp);
+typedef void (*CanRxThread)(volatile int *running);
 
 static RegisterInternalPutchar register_internal_putchar = NULL;
 static Crc16 crc16 = NULL;
@@ -62,6 +63,7 @@ static CanVerifyAllDataCmd can_verifyAllDataCmd = NULL;
 static CanUpdateAllStationCmd can_updateAllStationCmd = NULL;
 static CanUpdateCurrentStationCmd can_updateCurrentStationCmd = NULL;
 static CanGetUpdateStatusCmd can_getUpdateStatusCmd = NULL;
+static CanRxThread can_rx_thread = NULL;
 
 inline void putchar_(char character, void* buffer, size_t idx, size_t maxlen)
 {
@@ -92,6 +94,7 @@ int main(int argc, char **argv)
     uint32_t newPacketLen;
     uint8_t status;
     int retCode = 0;
+    volatile int running = 1;
 
     //load library
     HINSTANCE handle = LoadLibraryA("cx_can_update.dll");
@@ -125,6 +128,7 @@ int main(int argc, char **argv)
     can_updateAllStationCmd = (CanUpdateAllStationCmd)GetProcAddress(handle, "can_updateAllStationCmd");
     can_updateCurrentStationCmd = (CanUpdateCurrentStationCmd)GetProcAddress(handle, "can_updateCurrentStationCmd");
     can_getUpdateStatusCmd = (CanGetUpdateStatusCmd)GetProcAddress(handle, "can_getUpdateStatusCmd");
+    can_rx_thread = (CanRxThread)GetProcAddress(handle, "can_rx_thread");
 
     fflush(stdout);
     if (argc != 3 && argc !=5 && argc != 7 && argc != 9 && argc != 11) {
@@ -187,9 +191,9 @@ int main(int argc, char **argv)
         return -1;
     }
     fseek(fd, 0, SEEK_END);
-    size_t fileLen = ftell(fd);
+    uint32_t fileLen = ftell(fd);
     rewind(fd);
-    size_t newFileLen = fileLen;
+    uint32_t newFileLen = fileLen;
     if ((fileLen & (packetLen - 1)) != 0) {
         printf("file length is not multiple of packetLen, need padding");
         newFileLen = fileLen + packetLen - (fileLen & (packetLen - 1));
@@ -216,10 +220,14 @@ int main(int argc, char **argv)
     if (!can_getDeviceInfo(sn)) {
         printf("could not fetch USBCAN serial number\n");
         retCode = -1;
-        goto bailout;
+        can_disconnect();
+        free(buffer);
+        return -1;
     }
     printf("connected USBCAN's serial number is %s\n", sn);
 
+    std::thread receive_thread(can_rx_thread, &running);
+    
     if (can_getBootloaderVerCmd(addr, resp) < 0) {
         printf("could not fetch LV BMS bootloader's version\n");
         printf("Are you sure the board fw is in the dfu mode?\n");
@@ -341,7 +349,7 @@ int main(int argc, char **argv)
             goto bailout;
         }
     }
-    std::this_thread::sleep_for(std::chrono::microseconds(5 * 1000000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
     while (true) {
         if (can_getUpdateStatusCmd(addr, resp) < 0) {
             printf("try to get update status failed\n");
@@ -355,10 +363,10 @@ int main(int argc, char **argv)
             break;
         } else if (status == 0x0C) {
             printf("progressing: transfer bms app internal data\n");
-            std::this_thread::sleep_for(std::chrono::microseconds(10000));   //10ms
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));   //10ms
         } else if (status == 0x0D) {
             printf("progressing: verify bms internal crc\n");
-            std::this_thread::sleep_for(std::chrono::microseconds(10000));   //10ms
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));   //10ms
         } else {
             printf("update bms app failed, error code is %hhu\n", status);
             retCode = -1;
@@ -367,6 +375,10 @@ int main(int argc, char **argv)
     }
 
 bailout:
+    running = 0;
+    if (receive_thread.joinable()) {
+        receive_thread.join();
+    }
     can_disconnect();
     printf("USBCAN disconnect successfully\n");
     free(buffer);

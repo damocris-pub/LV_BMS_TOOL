@@ -33,6 +33,8 @@
 #define TRANSMIT_SELFLOOP 2
 #define TRANSMIT_SINGLE_SELFLOOP 3
 
+#define kCapacity 1024
+
 //types
 typedef struct {
     uint16_t hw_Version;
@@ -67,6 +69,12 @@ typedef  struct  {
 	uint8_t	 data[8];
 	uint8_t	 Reserved[3];
 } VCI_CAN_OBJ;
+
+struct SPSCQueue {
+    alignas(std::hardware_destructive_interference_size) std::atomic<size_t> head;
+    alignas(std::hardware_destructive_interference_size) std::atomic<size_t> tail;
+    VCI_CAN_OBJ buffer[kCapacity];
+};
 
 #define GET_ID(id)  (id & CAN_ID_FLAG)
 
