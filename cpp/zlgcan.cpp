@@ -603,3 +603,25 @@ int can_getUpdateStatusCmd(uint8_t addr, uint8_t *resp)
     memcpy(resp, &p[RSP_DAT_OFFSET], 3);
     return 3;
 }
+
+//application only 
+int can_getUpdateStatusCmd(uint8_t addr, uint8_t *resp)
+{
+    can_frame frame;
+    getUpdateStatusCmd[CMD_ADR_OFFSET] = addr;
+    ZCAN_Transmit_Data can_cmd = can_constructFrame(2 + 1, getUpdateStatusCmd + CMD_LEN_OFFSET);
+    if (ZCAN_Transmit(chn, &can_cmd, 1) != 1) {
+        printf_("send getUpdateStatus command failed\n");
+		return -1;
+    }
+    if (!can_waitResponse(frame, CAN_RSP_ID, 3)) {
+        printf_("wait CAN response timeout\n");
+        return -1;
+    }
+    if (!verifyGetUpdateStatus(frame.data, false)) {
+        return -1;
+    }
+    uint8_t *p = frame.data;
+    memcpy(resp, &p[RSP_DAT_OFFSET], 3);
+    return 3;
+}

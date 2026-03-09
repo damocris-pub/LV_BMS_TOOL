@@ -52,6 +52,18 @@
 #define DFU_CMD_SOP                 0x5B    //only used for RS-485
 #define DFU_DAT_SOP                 0x5C    //only used for RS-485
 #define DFU_CMD_EOP                 0x18    //only used for RS-485
+#define APP_CMD_SOP                 0x5D    //only used for RS-485
+
+
+#define SYS_HEART_BEAT              0x00
+#define SYS_ENTER_SLEEP             0x01
+#define SYS_SET_TIME                0x02
+#define SYS_GET_TIME                0x03
+#define SYS_HEAT_FILM               0x04
+#define SYS_FORCE_HEAT_FILM         0x05
+#define SYS_HOST_HEAT_ENABLE        0x09
+#define SYS_BMS_UNLOCK              0x0A
+#define SYS_BMS_LOCK                0x0B
 
 //all the commands for upgrading
 #define DFU_ECHO                    0x00

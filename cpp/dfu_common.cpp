@@ -206,6 +206,160 @@ uint8_t getUpdateStatusCmd[] = {
     DFU_CMD_EOP,
 };
 
+uint8_t setHeartBeatCmd[] = {
+    APP_CMD_SOP,
+    0x04,
+    0x90,
+    0x03,
+    SYS_HEART_BEAT,
+    0x00,
+    0x00,           //CRC-LSB, only for RS485
+    0x00,           //CRC-MSB, only for RS485
+    DFU_CMD_EOP,
+};
+
+uint8_t forceDeepSleepCmd[] = {
+    APP_CMD_SOP,
+    0x04,
+    0x90,
+    0x03,
+    SYS_ENTER_SLEEP,
+    0x00,
+    0x00,           //CRC-LSB, only for RS485
+    0x00,           //CRC-MSB, only for RS485
+    DFU_CMD_EOP,
+};
+
+uint8_t setRtcYearCmd[] = {
+    APP_CMD_SOP,
+    0x06,
+    0x90,
+    0x03,
+    SYS_SET_TIME,
+    0x01,
+    0x00,           //year-lsb
+    0x00,           //year-msb
+    0x00,           //CRC-LSB, only for RS485
+    0x00,           //CRC-MSB, only for RS485
+    DFU_CMD_EOP,
+};
+
+uint8_t setRtcTimeCmd[] = {
+    APP_CMD_SOP,
+    0x05,
+    0x90,
+    0x03,
+    SYS_SET_TIME,
+    0x00,           //2 - month, 3 - day, 4 - hour, 5 - minute, 6 - second
+    0x00,
+    0x00,           //CRC-LSB, only for RS485
+    0x00,           //CRC-MSB, only for RS485
+    DFU_CMD_EOP,
+};
+
+uint8_t getRtcYearCmd[] = {
+    APP_CMD_SOP,
+    0x04,
+    0x90,
+    0x03,
+    SYS_GET_TIME,
+    0x01,
+    0x00,           //CRC-LSB, only for RS485
+    0x00,           //CRC-MSB, only for RS485
+    DFU_CMD_EOP,
+};
+
+uint8_t getRtcTimeCmd[] = {
+    APP_CMD_SOP,
+    0x04,
+    0x90,
+    0x03,
+    SYS_GET_TIME,
+    0x00,           //2 - month, 3 - day, 4 - hour, 5 - minute, 6 - second
+    0x00,           //CRC-LSB, only for RS485
+    0x00,           //CRC-MSB, only for RS485
+    DFU_CMD_EOP,
+};
+
+uint8_t heatFilmCmd[] = {
+    APP_CMD_SOP,
+    0x04,
+    0x90,
+    0x03,
+    SYS_HEAT_FILM,
+    0x00,           //0 - disable, 1 - enable
+    0x00,           //CRC-LSB, only for RS485
+    0x00,           //CRC-MSB, only for RS485
+    DFU_CMD_EOP,
+};
+
+uint8_t forceHeatFilmCmd[] = {
+    APP_CMD_SOP,
+    0x04,
+    0x90,
+    0x03,
+    SYS_FORCE_HEAT_FILM,
+    0x00,           //0 - disable, 1 - enable
+    0x00,           //CRC-LSB, only for RS485
+    0x00,           //CRC-MSB, only for RS485
+    DFU_CMD_EOP,
+};
+
+uint8_t enableHostHeatCmd[] = {
+    APP_CMD_SOP,
+    0x04,
+    0x90,
+    0x03,
+    SYS_HOST_HEAT_ENABLE,
+    0x00,           //0 - disable, 1 - enable
+    0x00,           //CRC-LSB, only for RS485
+    0x00,           //CRC-MSB, only for RS485
+    DFU_CMD_EOP,
+};
+
+uint8_t bmsUnlockCmd[] = {
+    APP_CMD_SOP,
+    0x07,
+    0x90,
+    0x03,
+    SYS_BMS_UNLOCK,
+    0xA5,
+    0x12,
+    0x34,
+    0x5A,
+    0x00,           //CRC-LSB, only for RS485
+    0x00,           //CRC-MSB, only for RS485
+    DFU_CMD_EOP,
+};
+
+uint8_t bmsLockCmd[] = {
+    APP_CMD_SOP,
+    0x07,
+    0x90,
+    0x03,
+    SYS_BMS_LOCK,
+    0xA6,
+    0x89,
+    0x12,
+    0x00,
+    0x00,           //CRC-LSB, only for RS485
+    0x00,           //CRC-MSB, only for RS485
+    DFU_CMD_EOP,
+};
+
+uint8_t bmsQueryCmd[] = {
+    APP_CMD_SOP,
+    0x05,
+    0x00,
+    0x98,
+    0x01,
+    0x00,           //start cell
+    0x00,           //end cell
+    0x00,           //CRC-LSB, only for RS485
+    0x00,           //CRC-MSB, only for RS485
+    DFU_CMD_EOP,
+};
+
 uint16_t crc16(uint8_t *buffer, uint32_t len, uint16_t start)
 {
     uint16_t crc = start;

@@ -1,6 +1,6 @@
 #pragma once
 
-//only Support ZHCXGD USBCAN
+//only Support ZLG and CX USBCAN
 //Author : richard xu (junzexu@outlook.com)
 //Date : Dec 02, 2026
 
