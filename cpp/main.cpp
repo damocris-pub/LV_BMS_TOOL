@@ -353,35 +353,36 @@ int main(int argc, char **argv)
             retCode = -1;
             goto bailout;
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(15000));
     } else {  //mode == 1  
         if (can_updateAllStationCmd() < 0) {
             printf("try to update all stations failed\n");
             retCode = -1;
             goto bailout;
         }
-    }
-    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
-    while (true) {
-        if (can_getUpdateStatusCmd(addr, resp) < 0) {
-            printf("try to get update status failed\n");
-            retCode = -1;
-            goto bailout;
-        }
-        status = *resp;
-        if (status == 0xAA) {
-            printf("update bms app successfully\n");
-            retCode = 0;
-            break;
-        } else if (status == 0x0C) {
-            printf("progressing: transfer bms app internal data\n");
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));   //10ms
-        } else if (status == 0x0D) {
-            printf("progressing: verify bms internal crc\n");
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));   //10ms
-        } else {
-            printf("update bms app failed, error code is %hhu\n", status);
-            retCode = -1;
-            goto bailout;
+        std::this_thread::sleep_for(std::chrono::milliseconds(15000));
+        while (true) {
+            if (can_getUpdateStatusCmd(addr, resp) < 0) {
+                printf("try to get update status failed\n");
+                retCode = -1;
+                goto bailout;
+            }
+            status = *resp;
+            if (status == 0xAA) {
+                printf("update bms app successfully\n");
+                retCode = 0;
+                break;
+            } else if (status == 0x0C) {
+                printf("progressing: transfer bms app internal data\n");
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));   //10ms
+            } else if (status == 0x0D) {
+                printf("progressing: verify bms internal crc\n");
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));   //10ms
+            } else {
+                printf("update bms app failed, error code is %hhu\n", status);
+                retCode = -1;
+                goto bailout;
+            }
         }
     }
 

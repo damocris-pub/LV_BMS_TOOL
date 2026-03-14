@@ -77,10 +77,10 @@ static ZCAN_Transmit_Data can_constructFrame(uint8_t len, uint8_t *data)
     return can_data;
 }
 
-static bool can_waitResponse(can_frame &item, uint32_t expected_id, int timeout_ms) 
+static bool can_waitResponse(can_frame &item, uint32_t expected_id, int seconds) 
 {
     auto start = std::chrono::high_resolution_clock::now();
-    auto deadline = start + std::chrono::milliseconds(timeout_ms);
+    auto deadline = start + std::chrono::milliseconds(seconds * 1000);
     while (std::chrono::high_resolution_clock::now() < deadline) {
         if (SPSCQueuePop(item)) {
             if (item.can_id == expected_id) {
@@ -514,7 +514,7 @@ int can_verifyPacketDataCmd(uint8_t addr, uint16_t packetCrc)
         printf_("send verifyPacketData command failed\n");
 		return -1;
     }
-    if (!can_waitResponse(frame, CAN_RSP_ID, 3)) {
+    if (!can_waitResponse(frame, CAN_RSP_ID, 5)) {
         printf_("wait CAN response timeout\n");
         return -1;
     }
@@ -549,7 +549,7 @@ int can_verifyAllDataCmd(uint8_t addr, uint8_t crcType, uint32_t fileCrc)
         printf_("send verifyAllData command failed\n");
 		return -1;
     }
-    if (!can_waitResponse(frame, CAN_RSP_ID, 3)) {
+    if (!can_waitResponse(frame, CAN_RSP_ID, 10)) {
         printf_("wait CAN response timeout\n");
         return -1;
     }
