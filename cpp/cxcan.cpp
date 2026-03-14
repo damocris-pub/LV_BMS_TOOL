@@ -545,7 +545,7 @@ int can_setPacketSeqCmd(uint8_t addr, uint16_t packetSeq, uint8_t *resp)
     }
     auto start = std::chrono::high_resolution_clock::now();
     while (true) {
-        if (!can_waitResponse(1)) {
+        if (!can_waitResponse(5)) {
             printf_("wait CAN response timeout\n");
             return -1;
         }
@@ -688,7 +688,7 @@ int can_verifyPacketDataCmd(uint8_t addr, uint16_t packetCrc)
     }
     auto start = std::chrono::high_resolution_clock::now();
     while (true) {
-        if (!can_waitResponse(1)) {
+        if (!can_waitResponse(5)) {
             printf_("wait CAN response timeout\n");
             return -1;
         }
