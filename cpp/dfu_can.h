@@ -31,8 +31,7 @@ __declspec(dllexport) int can_setPacketAddrCmd(uint8_t addr, uint32_t packetAddr
 __declspec(dllexport) int can_sendPacketData(uint16_t packetLen, uint8_t *data);
 __declspec(dllexport) int can_verifyPacketDataCmd(uint8_t addr, uint16_t packetCrc);
 __declspec(dllexport) int can_verifyAllDataCmd(uint8_t addr, uint8_t crcType, uint32_t fileCrc);
-__declspec(dllexport) int can_updateAllStationCmd(void);
-__declspec(dllexport) int can_updateCurrentStationCmd(uint8_t addr);
+__declspec(dllexport) int can_updateStationCmd(uint8_t addr, bool all);
 __declspec(dllexport) int can_getUpdateStatusCmd(uint8_t addr, uint8_t *resp);
 __declspec(dllexport) void can_rx_thread(volatile int *running);
 

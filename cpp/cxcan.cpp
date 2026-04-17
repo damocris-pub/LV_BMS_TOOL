@@ -569,22 +569,15 @@ int can_verifyAllDataCmd(uint8_t addr, uint8_t crcType, uint32_t fileCrc)
     return 0;
 }
 
-int can_updateAllStationCmd(void)
+int can_updateStationCmd(uint8_t addr, bool all)
 {
-    updateStationCmd[CMD_ADR_OFFSET] = 0x00;
-    updateStationCmd[CMD_DAT_OFFSET] = 0x52;
-    VCI_CAN_OBJ can_cmd = can_constructFrame(4 + 1, updateStationCmd + CMD_LEN_OFFSET);
-    if (VCI_Transmit(gDevice, 0, gChannel, &can_cmd, 1) != 1) {
-        printf_("send verifyAllData command failed\n");
-		return -1;
+    if (all) {
+        updateStationCmd[CMD_ADR_OFFSET] = 0x00;
+        updateStationCmd[CMD_DAT_OFFSET] = 0x52;
+    } else {
+        updateStationCmd[CMD_ADR_OFFSET] = addr;
+        updateStationCmd[CMD_DAT_OFFSET] = 0x51;
     }
-    return 0;
-}
-
-int can_updateCurrentStationCmd(uint8_t addr)
-{
-    updateStationCmd[CMD_ADR_OFFSET] = addr;
-    updateStationCmd[CMD_DAT_OFFSET] = 0x51;
     VCI_CAN_OBJ can_cmd = can_constructFrame(4 + 1, updateStationCmd + CMD_LEN_OFFSET);
     if (VCI_Transmit(gDevice, 0, gChannel, &can_cmd, 1) != 1) {
         printf_("send verifyAllData command failed\n");

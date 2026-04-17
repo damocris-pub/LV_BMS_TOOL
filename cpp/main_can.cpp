@@ -36,8 +36,7 @@ typedef int (*CanSetPacketAddrCmd)(uint8_t addr, uint32_t packetAddr, uint8_t *r
 typedef int (*CanSendPacketData)(uint16_t packetLen, uint8_t *data);
 typedef int (*CanVerifyPacketDataCmd)(uint8_t addr, uint16_t packetCrc);
 typedef int (*CanVerifyAllDataCmd)(uint8_t addr, uint8_t crcType, uint32_t fileCrc);
-typedef int (*CanUpdateAllStationCmd)(void);
-typedef int (*CanUpdateCurrentStationCmd)(uint8_t addr);
+typedef int (*CanUpdateStationCmd)(uint8_t addr, bool all);
 typedef int (*CanGetUpdateStatusCmd)(uint8_t addr, uint8_t *resp);
 typedef void (*CanRxThread)(volatile int *running);
 
@@ -61,8 +60,7 @@ static CanSetPacketAddrCmd can_setPacketAddrCmd = NULL;
 static CanSendPacketData can_sendPacketData = NULL;
 static CanVerifyPacketDataCmd can_verifyPacketDataCmd = NULL;
 static CanVerifyAllDataCmd can_verifyAllDataCmd = NULL;
-static CanUpdateAllStationCmd can_updateAllStationCmd = NULL;
-static CanUpdateCurrentStationCmd can_updateCurrentStationCmd = NULL;
+static CanUpdateStationCmd can_updateStationCmd = NULL;
 static CanGetUpdateStatusCmd can_getUpdateStatusCmd = NULL;
 static CanRxThread can_rx_thread = NULL;
 volatile int running = 0;
@@ -134,8 +132,7 @@ int main(int argc, char **argv)
     can_sendPacketData = (CanSendPacketData)GetProcAddress(handle, "can_sendPacketData");
     can_verifyPacketDataCmd = (CanVerifyPacketDataCmd)GetProcAddress(handle, "can_verifyPacketDataCmd");
     can_verifyAllDataCmd = (CanVerifyAllDataCmd)GetProcAddress(handle, "can_verifyAllDataCmd");
-    can_updateAllStationCmd = (CanUpdateAllStationCmd)GetProcAddress(handle, "can_updateAllStationCmd");
-    can_updateCurrentStationCmd = (CanUpdateCurrentStationCmd)GetProcAddress(handle, "can_updateCurrentStationCmd");
+    can_updateStationCmd = (CanUpdateStationCmd)GetProcAddress(handle, "can_updateStationCmd");
     can_getUpdateStatusCmd = (CanGetUpdateStatusCmd)GetProcAddress(handle, "can_getUpdateStatusCmd");
     can_rx_thread = (CanRxThread)GetProcAddress(handle, "can_rx_thread");
 
@@ -348,14 +345,14 @@ int main(int argc, char **argv)
         }
     }
     if (mode == 0) {
-        if (can_updateCurrentStationCmd(addr) < 0) {
+        if (can_updateStationCmd(addr, false) < 0) {
             printf("try to update current station failed\n");
             retCode = -1;
             goto bailout;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(15000));
     } else {  //mode == 1  
-        if (can_updateAllStationCmd() < 0) {
+        if (can_updateStationCmd(0, true) < 0) {
             printf("try to update all stations failed\n");
             retCode = -1;
             goto bailout;
